@@ -8,21 +8,25 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.extern.slf4j.Slf4j;
 import net.talaatharb.samples.unsecuredcrud.dto.ItemDto;
 
 @CrossOrigin
 @RestController
 @RequestMapping("/api/items")
+@Slf4j
 public class ItemController {
 
 	private static final int COUNT = 10;
 
 	/**
 	 * Get all the items
-	 * @return
+	 * @return List of items
 	 */
 	@GetMapping(path = "")
 	public List<ItemDto> findAll() {
+		log.info("Find all called");
+		
 		final List<ItemDto> result = new ArrayList<>();
 
 		for (int i = 0; i < COUNT; i++) {
