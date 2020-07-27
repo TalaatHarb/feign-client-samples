@@ -1,0 +1,42 @@
+# Server port
+server:
+  port: 8083
+
+# Keycloak specific properties that we will use
+keycloak:
+  host: 192.168.20.142
+  port: 8180
+  realm: sample-realm
+  client-id: sample-api
+
+rest:
+  security:
+    # Can be set to false to disable security during local development
+    enabled: true
+    api-matcher: /api/**
+    cors:
+      allowed-origins: \*
+      allowed-headers: \*
+      allowed-methods: GET,POST,PUT,PATCH,DELETE,OPTIONS
+      max-age: 3600
+    issuer-uri: http://${keycloak.host}:${keycloak.port}/auth/realms/${keycloak.realm}
+
+spring:
+  jpa.open-in-view: false
+  security:
+    oauth2:
+      resourceserver:
+          jwt:
+            jwk-set-uri: ${rest.security.issuer-uri}/protocol/openid-connect/certs
+      resource:
+        id: ${keycloak.client-id}
+        token-info-uri: ${rest.security.issuer-uri}/protocol/openid-connect/token/introspect
+        user-info-uri: ${rest.security.issuer-uri}/protocol/openid-connect/userinfo
+        jwt.key-value: -----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAj8G5DWgtamYXYmghbuIhLi0YEyP/uEFsiWm4m+pJT9vFZAPgKzqhmx7+xqz7DKcrcydVd3g5Nb8YndoNYpohEy51j9hWSqDmlpb78U0WALv5e/nHvUk7AXFJkuTiEdMI/fTSlVPvVAv9cSckwPtqqcZzg+j/cs0YcA2W8D0nyDPKZUFd1f0mcs0Iu25YqQ9i+jpubWuOoG/+svpxrisMiMhCMZL/J7Tl8V1eGnxgiPo2/Uz+864TYuS9vnzflpbKv3/TQ4E5ieszq8upDaZ+A7vydoe3OpShodSNuTHsPR54GXi8bER7ld3vOPuz6X6oP+4fGOGGxNEutSyggKjGnwIDAQAB\n-----END PUBLIC KEY-----
+      client:
+        client-id: ${keycloak.client-id}
+        # client-secret: 68977d81-c59b-49aa-aada-58da9a43a850
+        user-authorization-uri: ${rest.security.issuer-uri}/protocol/openid-connect/auth
+        access-token-uri: ${rest.security.issuer-uri}/protocol/openid-connect/token
+        scope: openid
+        grant-type: client_credentials

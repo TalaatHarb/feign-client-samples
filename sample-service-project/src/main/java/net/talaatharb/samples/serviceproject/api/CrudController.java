@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
-import net.talaatharb.samples.serviceproject.microservice.ItemDto;
 import net.talaatharb.samples.serviceproject.microservice.UnsecuredMicroService;
+import net.talaatharb.samples.serviceproject.microservice.dto.ItemDto;
 
 @RestController
 @RequestMapping("/api")

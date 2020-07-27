@@ -1,4 +1,4 @@
-package net.talaatharb.samples.serviceproject.microservice;
+package net.talaatharb.samples.serviceproject.microservice.dto;
 
 import java.util.Date;
 import java.util.UUID;

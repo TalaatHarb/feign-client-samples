@@ -1,2 +1,5 @@
 unsecured:
   url: http://localhost:8081
+
+secured:
+  url: http://localhost:8083
