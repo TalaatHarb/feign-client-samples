@@ -15,7 +15,7 @@ spring:
     oauth2:
       client:
         registration:
-          sample-client:
+          secured:
             provider: keycloak
             client-id: sample-client
             client-secret: 165745e9-7591-42ef-b3dc-3cef0b8b01ec
@@ -25,3 +25,4 @@ spring:
           keycloak:
             authorization-uri: ${keycloak.issuer-uri}/protocol/openid-connect/auth
             token-uri: ${keycloak.issuer-uri}/protocol/openid-connect/token
+            issuer-uri: ${keycloak.issuer-uri}
