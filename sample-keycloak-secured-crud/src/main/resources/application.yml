@@ -11,14 +11,6 @@ keycloak:
 
 rest:
   security:
-    # Can be set to false to disable security during local development
-    enabled: true
-    api-matcher: /api/**
-    cors:
-      allowed-origins: \*
-      allowed-headers: \*
-      allowed-methods: GET,POST,PUT,PATCH,DELETE,OPTIONS
-      max-age: 3600
     issuer-uri: http://${keycloak.host}:${keycloak.port}/auth/realms/${keycloak.realm}
 
 spring:
