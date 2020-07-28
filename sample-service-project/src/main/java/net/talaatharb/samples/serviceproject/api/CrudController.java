@@ -3,6 +3,7 @@ package net.talaatharb.samples.serviceproject.api;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,6 +14,7 @@ import net.talaatharb.samples.serviceproject.microservice.UnsecuredMicroService;
 import net.talaatharb.samples.serviceproject.microservice.dto.ItemDto;
 import net.talaatharb.samples.serviceproject.microservice.dto.UserDto;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api")
 @Slf4j
