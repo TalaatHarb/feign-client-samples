@@ -1,6 +1,10 @@
 package net.talaatharb.samples.serviceproject.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import java.util.ArrayList;
+
+import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
+import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties.Provider;
+import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties.Registration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.oauth2.client.DefaultOAuth2ClientContext;
 import org.springframework.security.oauth2.client.OAuth2ClientContext;
@@ -11,14 +15,7 @@ import feign.RequestInterceptor;
 
 public class SecuredMicroServiceConfiguration {
 
-	@Value("${keycloak.token-uri}")
-	private String accessTokenUri;
-
-	@Value("${spring.security.oauth2.client.registration.secured.client-id}")
-	private String clientId;
-
-	@Value("${spring.security.oauth2.client.registration.secured.client-secret}")
-	private String clientSecret;
+	private static final String SECURED_CLIENT_NAME = "secured";
 
 	private final OAuth2ClientContext oAuth2ClientContext;
 
@@ -34,11 +31,20 @@ public class SecuredMicroServiceConfiguration {
 	}
 
 	@Bean
-	public OAuth2ProtectedResourceDetails resourceDetails() {
+	public OAuth2ProtectedResourceDetails resourceDetails(
+			OAuth2ClientProperties details) {
 		ClientCredentialsResourceDetails resourceDetails = new ClientCredentialsResourceDetails();
-		resourceDetails.setAccessTokenUri(accessTokenUri);
-		resourceDetails.setClientId(clientId);
-		resourceDetails.setClientSecret(clientSecret);
+		
+		final Registration client = details.getRegistration()
+				.get(SECURED_CLIENT_NAME);
+		final Provider provider = details.getProvider()
+				.get(client.getProvider());
+		
+		resourceDetails.setAccessTokenUri(provider.getTokenUri());
+		resourceDetails.setClientId(client.getClientId());
+		resourceDetails.setClientSecret(client.getClientSecret());
+		resourceDetails.setScope(new ArrayList<>(client.getScope()));
+		
 		return resourceDetails;
 	}
 }
