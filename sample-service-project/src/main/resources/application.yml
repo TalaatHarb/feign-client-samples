@@ -20,7 +20,7 @@ spring:
           secured:
             provider: keycloak
             client-id: sample-client
-            client-secret: 9073f8f1-943a-4848-9d8f-3ee8fc8726fb
+            client-secret: c08b1a35-753f-4975-a207-6c6eeb5218ac
             authorization-grant-type: client_credentials
             scope: roles
         provider:

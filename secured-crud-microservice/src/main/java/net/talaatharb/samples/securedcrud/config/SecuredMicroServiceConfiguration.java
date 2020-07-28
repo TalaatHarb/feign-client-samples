@@ -1,4 +1,4 @@
-package net.talaatharb.samples.serviceproject.config;
+package net.talaatharb.samples.securedcrud.config;
 
 import java.util.ArrayList;
 

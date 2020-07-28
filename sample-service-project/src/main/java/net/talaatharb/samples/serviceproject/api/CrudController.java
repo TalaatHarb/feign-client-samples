@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
-import net.talaatharb.samples.serviceproject.microservice.SecuredMicroService;
-import net.talaatharb.samples.serviceproject.microservice.UnsecuredMicroService;
-import net.talaatharb.samples.serviceproject.microservice.dto.ItemDto;
-import net.talaatharb.samples.serviceproject.microservice.dto.UserDto;
+import net.talaatharb.samples.securedcrud.dto.UserDto;
+import net.talaatharb.samples.securedcrud.microservice.SecuredMicroService;
+import net.talaatharb.samples.unsecuredcrud.dto.ItemDto;
+import net.talaatharb.samples.unsecuredcurd.microservice.UnsecuredMicroService;
 
 @CrossOrigin
 @RestController

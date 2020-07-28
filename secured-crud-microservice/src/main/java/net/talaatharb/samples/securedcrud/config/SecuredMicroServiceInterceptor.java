@@ -1,4 +1,4 @@
-package net.talaatharb.samples.serviceproject.config;
+package net.talaatharb.samples.securedcrud.config;
 
 import org.springframework.cloud.security.oauth2.client.feign.OAuth2FeignRequestInterceptor;
 import org.springframework.security.oauth2.client.OAuth2ClientContext;
