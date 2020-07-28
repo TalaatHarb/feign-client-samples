@@ -4,6 +4,7 @@ import org.springframework.cloud.security.oauth2.client.feign.OAuth2FeignRequest
 import org.springframework.security.oauth2.client.OAuth2ClientContext;
 import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
 
+@SuppressWarnings("deprecation")
 public class SecuredMicroServiceInterceptor
 		extends
 			OAuth2FeignRequestInterceptor {

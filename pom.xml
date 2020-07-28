@@ -2,13 +2,16 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>unsecured-crud-microservice</artifactId>
-	<name>unsecured-crud-microservice</name>
+	<groupId>net.talaatharb</groupId>
+	<artifactId>feign-client-samples</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>feign-client-samples</name>
 
 	<parent>
-		<groupId>net.talaatharb</groupId>
-		<artifactId>feign-client-samples</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.3.1.RELEASE</version>
 	</parent>
 
 	<properties>
@@ -31,17 +34,15 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>net.talaatharb</groupId>
-			<artifactId>unsecured-crud-dto</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-openfeign</artifactId>
-			<version>2.2.3.RELEASE</version>
-		</dependency>
 	</dependencies>
+
+	<modules>
+		<module>sample-keycloak-secured-crud</module>
+		<module>sample-service-project</module>
+		<module>sample-unsecured-crud</module>
+		<module>secured-crud-dto</module>
+		<module>secured-crud-microservice</module>
+		<module>unsecured-crud-dto</module>
+		<module>unsecured-crud-microservice</module>
+	</modules>
 </project>

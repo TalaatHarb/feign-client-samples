@@ -21,7 +21,6 @@ public class ItemController {
 
 	/**
 	 * Get all the items
-	 * @return List of items
 	 */
 	@GetMapping(path = "")
 	public List<ItemDto> findAll() {
