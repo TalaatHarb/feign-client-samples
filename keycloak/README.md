@@ -5,3 +5,5 @@ Run the following command from inside this folder:
 
 It might take up to 4 minutes to start
 you can access its admin console using the user name and password in the corresponding files
+
+After that enter the admin console and copy the secret from the client: sample-client to your configuration for the micro-service
