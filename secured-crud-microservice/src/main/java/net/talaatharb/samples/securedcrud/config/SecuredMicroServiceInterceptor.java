@@ -13,6 +13,7 @@ public class SecuredMicroServiceInterceptor
 			OAuth2ClientContext oAuth2ClientContext,
 			OAuth2ProtectedResourceDetails resourceDetails) {
 		super(oAuth2ClientContext, resourceDetails);
+		
 		acquireAccessToken();
 	}
 }

@@ -1,0 +1,29 @@
+secured:
+  host: localhost
+  port: 8083
+  url: http://${secured.host}:${secured.port}
+
+keycloak:
+  host: localhost
+  port: 8180
+  realm: sample-realm
+  issuer-uri: http://${keycloak.host}:${keycloak.port}/auth/realms/${keycloak.realm}
+  authorization-uri: ${keycloak.issuer-uri}/protocol/openid-connect/auth
+  token-uri: ${keycloak.issuer-uri}/protocol/openid-connect/token
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          secured:
+            provider: keycloak
+            client-id: sample-client
+            client-secret: c08b1a35-753f-4975-a207-6c6eeb5218ac
+            authorization-grant-type: client_credentials
+            scope: roles
+        provider:
+          keycloak:
+            authorization-uri: ${keycloak.authorization-uri}
+            token-uri: ${keycloak.token-uri}
+            issuer-uri: ${keycloak.issuer-uri}

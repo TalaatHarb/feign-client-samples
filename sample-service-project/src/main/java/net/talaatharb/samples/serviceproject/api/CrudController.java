@@ -35,12 +35,12 @@ public class CrudController {
 	@GetMapping(path = "/unsecured")
 	public List<ItemDto> findAllFromUnsecured() {
 		log.info(FIND_ALL_MESSAGE, UNSECURED_SERVICE_NAME);
-		return unsecuredService.findAll();
+		return unsecuredService.readAll();
 	}
 
 	@GetMapping(path = "/secured")
 	public List<UserDto> findAllFromSecured() {
 		log.info(FIND_ALL_MESSAGE, SECURED_SERVICE_NAME);
-		return securedService.findAll();
+		return securedService.readAll();
 	}
 }
