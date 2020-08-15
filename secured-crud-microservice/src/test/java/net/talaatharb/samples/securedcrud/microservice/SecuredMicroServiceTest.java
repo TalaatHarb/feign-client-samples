@@ -1,20 +1,37 @@
 package net.talaatharb.samples.securedcrud.microservice;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
+import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.cloud.openfeign.FeignAutoConfiguration;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
 
 import net.talaatharb.samples.securedcrud.config.MockServersConfiguration;
 import net.talaatharb.samples.securedcrud.config.SecuredMicroServiceConfiguration;
@@ -30,36 +47,154 @@ import net.talaatharb.samples.securedcrud.dto.UserDto;
 @ActiveProfiles("test")
 class SecuredMicroServiceTest {
 
+	@Value("${secured.port}")
+	private String securedServicePort;
+
+	@Value("${secured.apiUrl}")
+	private String apiUrl;
+
+	private WireMockServer mockSecuredServer;
+
+	private ObjectMapper objectMapper = new ObjectMapper();
+
+	private UUID id;
+
+	private String apiUrlWithId;
+
 	@Autowired
 	private SecuredMicroService securedMicroService;
 
+	@BeforeEach
+	void setup() {
+		mockSecuredServer = new WireMockServer(
+				wireMockConfig().port(Integer.parseInt(securedServicePort)));
+
+		mockSecuredServer.start();
+		id = UUID.randomUUID();
+		apiUrlWithId = apiUrl + "/" + id;
+	}
+
+	@AfterEach
+	void cleanup() {
+		mockSecuredServer.resetAll();
+		mockSecuredServer.stop();
+	}
+
 	@Test
-	void testCreate() {
-		ResponseEntity<UserDto> response = securedMicroService
+	void testCreate() throws JsonProcessingException {
+		// Arrange for create
+		final UserDto expectedResult = new UserDto(id);
+
+		mockSecuredServer.stubFor(WireMock.post(urlPathEqualTo(apiUrl))
+				.willReturn(aResponse().withStatus(HttpStatus.CREATED.value())
+						.withBody(
+								objectMapper.writeValueAsString(expectedResult))
+						.withHeader("Content-type",
+								MediaType.APPLICATION_JSON.toString())));
+
+		// Action: create
+		final ResponseEntity<UserDto> response = securedMicroService
 				.create(new UserDto());
 
+		// Assert
+
+		// Action took effect
+		mockSecuredServer
+				.verify(WireMock.postRequestedFor(urlPathEqualTo(apiUrl)));
+
+		// With expected Data
+		assertEquals(expectedResult, response.getBody());
 		assertTrue(HttpStatus.CREATED.equals(response.getStatusCode()));
+
 	}
 
 	@Test
 	void testDelete() {
-		fail("Not implemented yet");
+		// Arrange setup for delete
+		mockSecuredServer.stubFor(
+				WireMock.delete(urlPathEqualTo(apiUrlWithId)).willReturn(
+						aResponse().withStatus(HttpStatus.NO_CONTENT.value())));
+
+		// Action: delete
+		securedMicroService.delete(id);
+
+		// Assert action took effect
+		mockSecuredServer.verify(
+				WireMock.deleteRequestedFor(urlPathEqualTo(apiUrlWithId)));
+
 	}
 
 	@Test
-	void testReadAll() {
-		fail("Not implemented yet");
+	void testReadAll() throws JsonProcessingException {
+		// Arrange for read all
+		final List<UserDto> expectedResult = Arrays.asList(new UserDto(id),
+				new UserDto());
+
+		mockSecuredServer.stubFor(WireMock.get(urlPathEqualTo(apiUrl))
+				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
+						.withBody(
+								objectMapper.writeValueAsString(expectedResult))
+						.withHeader("Content-type",
+								MediaType.APPLICATION_JSON.toString())));
+
+		// Action: read all
+		final List<UserDto> response = securedMicroService.readAll();
+
+		// Assert
+
+		// Action took effect
+		mockSecuredServer
+				.verify(WireMock.getRequestedFor(urlPathEqualTo(apiUrl)));
+
+		// With expected Data
+		assertEquals(expectedResult, response);
 	}
 
 	@Test
-	void testReadOne() {
-		fail("Not implemented yet");
+	void testReadOne() throws JsonProcessingException {
+		// Arrange for read one
+		final UserDto expectedResult = new UserDto(id);
 
+		mockSecuredServer.stubFor(WireMock.get(urlPathEqualTo(apiUrlWithId))
+				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
+						.withBody(
+								objectMapper.writeValueAsString(expectedResult))
+						.withHeader("Content-type",
+								MediaType.APPLICATION_JSON.toString())));
+
+		// Action: read one
+		final UserDto response = securedMicroService.readOne(id);
+
+		// Assert
+
+		// Action took effect
+		mockSecuredServer
+				.verify(WireMock.getRequestedFor(urlPathEqualTo(apiUrlWithId)));
+
+		// With expected Data
+		assertEquals(expectedResult, response);
 	}
 
 	@Test
-	void testUpdate() {
-		fail("Not implemented yet");
+	void testUpdate() throws JsonProcessingException {
+		// Arrange for update
+		mockSecuredServer.stubFor(WireMock.put(urlPathEqualTo(apiUrlWithId))
+				.willReturn(aResponse()
+						.withStatus(HttpStatus.NO_CONTENT.value())
+						.withHeader("Location",
+								mockSecuredServer.baseUrl() + apiUrlWithId)));
+
+		// Action: update
+		final ResponseEntity<URI> response = securedMicroService.update(id,
+				new UserDto(id));
+
+		// Assert
+
+		// Action took effect
+		mockSecuredServer
+				.verify(WireMock.putRequestedFor(urlPathEqualTo(apiUrlWithId)));
+
+		assertTrue(HttpStatus.NO_CONTENT.equals(response.getStatusCode()));
 	}
 
 }

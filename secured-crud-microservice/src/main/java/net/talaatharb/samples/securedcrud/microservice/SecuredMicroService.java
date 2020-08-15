@@ -18,7 +18,7 @@ import net.talaatharb.samples.securedcrud.config.SecuredMicroServiceConfiguratio
 import net.talaatharb.samples.securedcrud.dto.UserDto;
 
 @FeignClient(value = "secured", url = "${secured.url}", configuration = SecuredMicroServiceConfiguration.class)
-@RequestMapping("/api/users")
+@RequestMapping("${secured.apiUrl}")
 public interface SecuredMicroService {
 
 	/**

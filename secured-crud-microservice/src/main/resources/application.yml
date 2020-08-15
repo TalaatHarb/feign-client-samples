@@ -1,0 +1,5 @@
+secured:
+  apiUrl: /api/users
+  host: localhost
+  port: 8083
+  url: http://${secured.host}:${secured.port}
