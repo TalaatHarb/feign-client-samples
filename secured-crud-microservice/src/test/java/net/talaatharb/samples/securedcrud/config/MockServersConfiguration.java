@@ -23,8 +23,19 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 @EnableConfigurationProperties({OAuth2ClientProperties.class})
 public class MockServersConfiguration {
 
-	@Value("${keycloak.port}")
-	private String keyCloakPort;
+	public static final String TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+	public static final String TOKEN_PATH = "/auth/realms/sample-realm/protocol/openid-connect/token";
+
+	@Bean(value = "mockSecuredServer", destroyMethod = "stop")
+	WireMockServer mockSecuredServer(
+			@Value("${secured.port}") final String securedServicePort) {
+		WireMockServer mockSecuredServer = new WireMockServer(
+				wireMockConfig().port(Integer.parseInt(securedServicePort)));
+
+		mockSecuredServer.start();
+
+		return mockSecuredServer;
+	}
 
 	@Bean(value = "oAuth2Mock", destroyMethod = "stop")
 	WireMockServer oAuth2Mock(
@@ -35,10 +46,10 @@ public class MockServersConfiguration {
 
 		mockOAuth2Provider.start();
 
-		mockOAuth2Provider.stubFor(WireMock.post(urlPathEqualTo(
-				"/auth/realms/sample-realm/protocol/openid-connect/token"))
-				.willReturn(okJson(
-						"{\"token_type\": \"Bearer\",\"access_token\":\"{{randomValue length=20 type='ALPHANUMERIC'}}\"}")));
+		mockOAuth2Provider
+				.stubFor(WireMock.post(urlPathEqualTo(TOKEN_PATH)).willReturn(
+						okJson("{\"token_type\": \"Bearer\",\"access_token\":\""
+								+ TOKEN + "\"}")));
 
 		return mockOAuth2Provider;
 	}

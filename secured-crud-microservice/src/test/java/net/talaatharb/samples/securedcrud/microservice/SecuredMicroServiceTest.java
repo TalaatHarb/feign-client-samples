@@ -2,7 +2,6 @@ package net.talaatharb.samples.securedcrud.microservice;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -11,11 +10,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -47,43 +45,26 @@ import net.talaatharb.samples.securedcrud.dto.UserDto;
 @ActiveProfiles("test")
 class SecuredMicroServiceTest {
 
-	@Value("${secured.port}")
-	private String securedServicePort;
-
 	@Value("${secured.apiUrl}")
 	private String apiUrl;
 
+	@Autowired
+	@Qualifier("mockSecuredServer")
 	private WireMockServer mockSecuredServer;
 
+	@Autowired
+	@Qualifier("oAuth2Mock")
+	private WireMockServer oAuth2Mock;
+
 	private ObjectMapper objectMapper = new ObjectMapper();
-
-	private UUID id;
-
-	private String apiUrlWithId;
 
 	@Autowired
 	private SecuredMicroService securedMicroService;
 
-	@BeforeEach
-	void setup() {
-		mockSecuredServer = new WireMockServer(
-				wireMockConfig().port(Integer.parseInt(securedServicePort)));
-
-		mockSecuredServer.start();
-		id = UUID.randomUUID();
-		apiUrlWithId = apiUrl + "/" + id;
-	}
-
-	@AfterEach
-	void cleanup() {
-		mockSecuredServer.resetAll();
-		mockSecuredServer.stop();
-	}
-
 	@Test
 	void testCreate() throws JsonProcessingException {
 		// Arrange for create
-		final UserDto expectedResult = new UserDto(id);
+		final UserDto expectedResult = new UserDto();
 
 		mockSecuredServer.stubFor(WireMock.post(urlPathEqualTo(apiUrl))
 				.willReturn(aResponse().withStatus(HttpStatus.CREATED.value())
@@ -111,6 +92,9 @@ class SecuredMicroServiceTest {
 	@Test
 	void testDelete() {
 		// Arrange setup for delete
+		final UUID id = UUID.randomUUID();
+		final String apiUrlWithId = apiUrl + "/" + id;
+
 		mockSecuredServer.stubFor(
 				WireMock.delete(urlPathEqualTo(apiUrlWithId)).willReturn(
 						aResponse().withStatus(HttpStatus.NO_CONTENT.value())));
@@ -127,7 +111,7 @@ class SecuredMicroServiceTest {
 	@Test
 	void testReadAll() throws JsonProcessingException {
 		// Arrange for read all
-		final List<UserDto> expectedResult = Arrays.asList(new UserDto(id),
+		final List<UserDto> expectedResult = Arrays.asList(new UserDto(),
 				new UserDto());
 
 		mockSecuredServer.stubFor(WireMock.get(urlPathEqualTo(apiUrl))
@@ -144,7 +128,13 @@ class SecuredMicroServiceTest {
 
 		// Action took effect
 		mockSecuredServer
-				.verify(WireMock.getRequestedFor(urlPathEqualTo(apiUrl)));
+				.verify(WireMock.getRequestedFor(urlPathEqualTo(apiUrl))
+						.withHeader("Authorization", WireMock.equalTo(
+								"Bearer " + MockServersConfiguration.TOKEN)));
+
+		// and authentication server called
+		oAuth2Mock.verify(WireMock.postRequestedFor(
+				urlPathEqualTo(MockServersConfiguration.TOKEN_PATH)));
 
 		// With expected Data
 		assertEquals(expectedResult, response);
@@ -153,6 +143,9 @@ class SecuredMicroServiceTest {
 	@Test
 	void testReadOne() throws JsonProcessingException {
 		// Arrange for read one
+		final UUID id = UUID.randomUUID();
+		final String apiUrlWithId = apiUrl + "/" + id;
+
 		final UserDto expectedResult = new UserDto(id);
 
 		mockSecuredServer.stubFor(WireMock.get(urlPathEqualTo(apiUrlWithId))
@@ -178,6 +171,9 @@ class SecuredMicroServiceTest {
 	@Test
 	void testUpdate() throws JsonProcessingException {
 		// Arrange for update
+		final UUID id = UUID.randomUUID();
+		final String apiUrlWithId = apiUrl + "/" + id;
+
 		mockSecuredServer.stubFor(WireMock.put(urlPathEqualTo(apiUrlWithId))
 				.willReturn(aResponse()
 						.withStatus(HttpStatus.NO_CONTENT.value())
