@@ -1,4 +1,4 @@
-package net.talaatharb.samples.securedcrud.microservice;
+package net.talaatharb.samples.unsecuredcrud.microservice;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
@@ -30,42 +30,36 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 
-import net.talaatharb.samples.securedcrud.config.MockServersConfiguration;
-import net.talaatharb.samples.securedcrud.config.SecuredMicroServiceConfiguration;
-import net.talaatharb.samples.securedcrud.config.WebSecurityConfiguration;
-import net.talaatharb.samples.securedcrud.dto.UserDto;
+import net.talaatharb.samples.unsecuredcrud.config.MockServersConfiguration;
+import net.talaatharb.samples.unsecuredcrud.dto.ItemDto;
+import net.talaatharb.samples.unsecuredcurd.microservice.UnsecuredMicroService;
 
 @EnableFeignClients(value = "net.talaatharb")
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, classes = {
-		MockServersConfiguration.class, WebSecurityConfiguration.class,
-		SecuredMicroServiceConfiguration.class, FeignAutoConfiguration.class,
+@SpringBootTest(webEnvironment = WebEnvironment.MOCK, classes = {
+		MockServersConfiguration.class, FeignAutoConfiguration.class,
 		HttpMessageConvertersAutoConfiguration.class})
 @ActiveProfiles("test")
-class SecuredMicroServiceTest {
+class UnsecuredMicroServiceTest {
 
-	@Value("${secured.apiUrl}")
+	@Value("${unsecured.apiUrl}")
 	private String apiUrl;
 
 	@Autowired
-	@Qualifier("mockSecuredServer")
-	private WireMockServer mockSecuredServer;
-
-	@Autowired
-	@Qualifier("oAuth2Mock")
-	private WireMockServer oAuth2Mock;
+	@Qualifier("mockUnsecuredServer")
+	private WireMockServer mockUnsecuredServer;
 
 	private ObjectMapper objectMapper = new ObjectMapper();
 
 	@Autowired
-	private SecuredMicroService securedMicroService;
+	private UnsecuredMicroService unsecuredMicroService;
 
 	@Test
 	void testCreate() throws JsonProcessingException {
 		// Arrange for create
-		final UserDto expectedResult = new UserDto();
+		final ItemDto expectedResult = new ItemDto();
 
-		mockSecuredServer.stubFor(WireMock.post(urlPathEqualTo(apiUrl))
+		mockUnsecuredServer.stubFor(WireMock.post(urlPathEqualTo(apiUrl))
 				.willReturn(aResponse().withStatus(HttpStatus.CREATED.value())
 						.withBody(
 								objectMapper.writeValueAsString(expectedResult))
@@ -73,13 +67,13 @@ class SecuredMicroServiceTest {
 								MediaType.APPLICATION_JSON.toString())));
 
 		// Action: create
-		final ResponseEntity<UserDto> response = securedMicroService
-				.create(new UserDto());
+		final ResponseEntity<ItemDto> response = unsecuredMicroService
+				.create(new ItemDto());
 
 		// Assert
 
 		// Action took effect
-		mockSecuredServer
+		mockUnsecuredServer
 				.verify(WireMock.postRequestedFor(urlPathEqualTo(apiUrl)));
 
 		// With expected Data
@@ -94,15 +88,15 @@ class SecuredMicroServiceTest {
 		final UUID id = UUID.randomUUID();
 		final String apiUrlWithId = apiUrl + "/" + id;
 
-		mockSecuredServer.stubFor(
+		mockUnsecuredServer.stubFor(
 				WireMock.delete(urlPathEqualTo(apiUrlWithId)).willReturn(
 						aResponse().withStatus(HttpStatus.NO_CONTENT.value())));
 
 		// Action: delete
-		securedMicroService.delete(id);
+		unsecuredMicroService.delete(id);
 
 		// Assert action took effect
-		mockSecuredServer.verify(
+		mockUnsecuredServer.verify(
 				WireMock.deleteRequestedFor(urlPathEqualTo(apiUrlWithId)));
 
 	}
@@ -110,10 +104,10 @@ class SecuredMicroServiceTest {
 	@Test
 	void testReadAll() throws JsonProcessingException {
 		// Arrange for read all
-		final List<UserDto> expectedResult = Arrays.asList(new UserDto(),
-				new UserDto());
+		final List<ItemDto> expectedResult = Arrays.asList(new ItemDto(),
+				new ItemDto());
 
-		mockSecuredServer.stubFor(WireMock.get(urlPathEqualTo(apiUrl))
+		mockUnsecuredServer.stubFor(WireMock.get(urlPathEqualTo(apiUrl))
 				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
 						.withBody(
 								objectMapper.writeValueAsString(expectedResult))
@@ -121,19 +115,13 @@ class SecuredMicroServiceTest {
 								MediaType.APPLICATION_JSON.toString())));
 
 		// Action: read all
-		final List<UserDto> response = securedMicroService.readAll();
+		final List<ItemDto> response = unsecuredMicroService.readAll();
 
 		// Assert
 
 		// Action took effect
-		mockSecuredServer
-				.verify(WireMock.getRequestedFor(urlPathEqualTo(apiUrl))
-						.withHeader("Authorization", WireMock.equalTo(
-								"Bearer " + MockServersConfiguration.TOKEN)));
-
-		// and authentication server called
-		oAuth2Mock.verify(WireMock.postRequestedFor(
-				urlPathEqualTo(MockServersConfiguration.TOKEN_PATH)));
+		mockUnsecuredServer
+				.verify(WireMock.getRequestedFor(urlPathEqualTo(apiUrl)));
 
 		// With expected Data
 		assertEquals(expectedResult, response);
@@ -145,9 +133,9 @@ class SecuredMicroServiceTest {
 		final UUID id = UUID.randomUUID();
 		final String apiUrlWithId = apiUrl + "/" + id;
 
-		final UserDto expectedResult = new UserDto(id);
+		final ItemDto expectedResult = new ItemDto(id);
 
-		mockSecuredServer.stubFor(WireMock.get(urlPathEqualTo(apiUrlWithId))
+		mockUnsecuredServer.stubFor(WireMock.get(urlPathEqualTo(apiUrlWithId))
 				.willReturn(aResponse().withStatus(HttpStatus.OK.value())
 						.withBody(
 								objectMapper.writeValueAsString(expectedResult))
@@ -155,12 +143,12 @@ class SecuredMicroServiceTest {
 								MediaType.APPLICATION_JSON.toString())));
 
 		// Action: read one
-		final UserDto response = securedMicroService.readOne(id);
+		final ItemDto response = unsecuredMicroService.readOne(id);
 
 		// Assert
 
 		// Action took effect
-		mockSecuredServer
+		mockUnsecuredServer
 				.verify(WireMock.getRequestedFor(urlPathEqualTo(apiUrlWithId)));
 
 		// With expected Data
@@ -173,20 +161,20 @@ class SecuredMicroServiceTest {
 		final UUID id = UUID.randomUUID();
 		final String apiUrlWithId = apiUrl + "/" + id;
 
-		mockSecuredServer.stubFor(WireMock.put(urlPathEqualTo(apiUrlWithId))
+		mockUnsecuredServer.stubFor(WireMock.put(urlPathEqualTo(apiUrlWithId))
 				.willReturn(aResponse()
 						.withStatus(HttpStatus.NO_CONTENT.value())
 						.withHeader("Location",
-								mockSecuredServer.baseUrl() + apiUrlWithId)));
+								mockUnsecuredServer.baseUrl() + apiUrlWithId)));
 
 		// Action: update
-		final ResponseEntity<URI> response = securedMicroService.update(id,
-				new UserDto(id));
+		final ResponseEntity<URI> response = unsecuredMicroService.update(id,
+				new ItemDto(id));
 
 		// Assert
 
 		// Action took effect
-		mockSecuredServer
+		mockUnsecuredServer
 				.verify(WireMock.putRequestedFor(urlPathEqualTo(apiUrlWithId)));
 
 		assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());

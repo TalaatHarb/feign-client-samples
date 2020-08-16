@@ -1,2 +1,5 @@
 unsecured:
-  url: http://localhost:8081
+  host: localhost
+  port: 8081
+  url: http://${unsecured.host}:${unsecured.port}
+  apiUrl: /api/items

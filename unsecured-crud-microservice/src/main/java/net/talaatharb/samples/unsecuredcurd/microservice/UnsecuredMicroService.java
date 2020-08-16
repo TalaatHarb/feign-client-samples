@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import net.talaatharb.samples.unsecuredcrud.dto.ItemDto;
 
 @FeignClient(value = "unsecured", url = "${unsecured.url}")
-@RequestMapping("/api/items")
+@RequestMapping("${unsecured.apiUrl}")
 public interface UnsecuredMicroService {
 	
 	/**
