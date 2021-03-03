@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +22,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,7 +33,6 @@ import net.talaatharb.samples.unsecuredcrud.dto.ItemDto;
 import net.talaatharb.samples.unsecuredcurd.microservice.UnsecuredMicroService;
 
 @EnableFeignClients(value = "net.talaatharb")
-@RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK, classes = {
 		MockServersConfiguration.class, FeignAutoConfiguration.class,
 		HttpMessageConvertersAutoConfiguration.class})

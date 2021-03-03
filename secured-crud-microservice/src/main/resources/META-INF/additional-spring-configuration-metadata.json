@@ -1,0 +1,27 @@
+{"properties": [
+  {
+    "name": "secured.api-url",
+    "type": "java.lang.String",
+    "description": "A description for 'secured.api-url'"
+  },
+  {
+    "name": "secured.host",
+    "type": "java.lang.String",
+    "description": "A description for 'secured.host'"
+  },
+  {
+    "name": "secured.url",
+    "type": "java.lang.String",
+    "description": "A description for 'secured.url'"
+  },
+  {
+    "name": "secured.port",
+    "type": "java.lang.String",
+    "description": "A description for 'secured.port'"
+  },
+  {
+    "name": "secured.port",
+    "type": "java.lang.String",
+    "description": "A description for 'secured.port'"
+  }
+]}
